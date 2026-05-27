@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Interactive Poster - Brisbane Bus Stops</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <p class="viewport-notice" role="note">This visualisation is best viewed on a laptop or larger screen.</p>
+    <main class="shell" aria-label="Interactive bus stop accessibility poster">
+      <section class="poster-area" aria-label="Original poster artwork">
+        <div class="sort-control" role="group" aria-label="Rank suburbs">
+          <span class="sort-label">Rank suburb by</span>
+          <button type="button" class="sort-btn" data-sort="score" aria-pressed="false">Accessibility Score</button>
+          <button type="button" class="sort-btn" data-sort="quality" aria-pressed="false">% of Quality Bus Stops</button>
+        </div>
+        <div class="poster-frame" id="posterFrame">
+          <div class="filter-banner" id="filterBanner" hidden>
+            <span class="filter-banner-text">Filtered to <strong id="filterBannerBand"></strong></span>
+            <button type="button" class="filter-banner-clear" id="filterBannerClear" aria-label="Clear accessibility band filter">Clear filter</button>
+          </div>
+          <div class="sort-banner" id="sortBanner" hidden>
+            <div class="sort-banner-row">
+              <span class="sort-banner-prefix">Ranked by</span>
+              <strong id="sortBannerDim">Accessibility Score</strong>
+            </div>
+            <div class="sort-banner-hint" id="sortBannerHint"></div>
+            <div class="sort-banner-actions">
+              <button type="button" class="sort-close" id="sortClose" aria-label="Return to geographic view">Back to map</button>
+            </div>
+          </div>
+          <div class="svg-mount" id="svgMount"></div>
+          <div class="loading" id="loading">Loading poster...</div>
+        </div>
+        <div class="tooltip" id="tooltip" role="status" aria-hidden="true"></div>
+      </section>
+
+      <section class="comparison-column" aria-label="Suburb comparison">
+        <div class="hover-preview" id="hoverPreview" aria-live="polite">
+          <div class="preview-topline">
+            <span class="preview-label">Hovering</span>
+            <span class="preview-hint">Click to pin</span>
+          </div>
+          <div class="preview-body">
+            <h2 class="preview-name" id="previewName">Hover a suburb</h2>
+            <div class="preview-meta" id="previewMeta">Move over a suburb circle or arc for a quick preview.</div>
+            <div class="preview-mix" id="previewMix" aria-hidden="true"></div>
+          </div>
+        </div>
+
+        <div class="compare-strip" id="compareStrip" aria-live="polite">
+          <div class="compare-strip-text" id="compareStripText">Click two suburb circles to compare their accessibility.</div>
+          <div class="compare-strip-bar" id="compareStripBar" hidden>
+            <div class="compare-strip-side" data-side="A">
+              <span class="cs-name"></span>
+              <span class="cs-bar"><span class="cs-bar-fill"></span></span>
+              <span class="cs-score"></span>
+            </div>
+            <div class="compare-strip-delta">
+              <span class="cs-arrow"></span>
+              <span class="cs-delta"></span>
+            </div>
+            <div class="compare-strip-side" data-side="B">
+              <span class="cs-name"></span>
+              <span class="cs-bar"><span class="cs-bar-fill"></span></span>
+              <span class="cs-score"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="compare-cards">
+          <aside class="detail-panel compare-panel" id="panelA" data-slot="A" aria-live="polite">
+            <div class="panel-topline">
+              <span class="slot-label">Suburb A</span>
+              <span class="winner-badge" data-role="winner" hidden>More accessible</span>
+              <button class="clear-button" type="button" data-action="unpin" data-slot="A" hidden>Unpin</button>
+            </div>
+            <h1 class="panel-title" data-role="title">Pin a suburb</h1>
+            <p class="summary panel-summary" data-role="summary">Click a suburb circle or arc on the poster to pin it here.</p>
+
+            <div class="suburb-note" data-role="note" hidden>
+              <span class="suburb-note-title" data-role="noteTitle"></span>
+              <span class="suburb-note-body" data-role="noteBody"></span>
+            </div>
+
+            <div class="metric-grid" aria-label="Suburb A metrics">
+              <div class="metric-cell" data-metric="rank">
+                <span>Rank</span>
+                <strong data-role="value">--</strong>
+              </div>
+              <div class="metric-cell" data-metric="score">
+                <span>Accessibility Score <button type="button" class="info-icon" aria-label="About the accessibility score" aria-describedby="scoreInfoPopover">i</button></span>
+                <strong data-role="value">--</strong>
+              </div>
+              <div class="metric-cell" data-metric="stops">
+                <span>Stops</span>
+                <strong data-role="value">--</strong>
+              </div>
+            </div>
+
+            <section class="panel-section accessibility-section" aria-label="Accessibility factor breakdown">
+              <h2>Breakdown of Accessibility</h2>
+              <h3 class="panel-subheading">Accessibility Score by Factor</h3>
+              <div class="component-grid" data-role="componentGrid"></div>
+              <h3 class="panel-subheading">Accessibility Conditions by Factor</h3>
+              <div class="stack-list" data-role="conditionBars"></div>
+            </section>
+
+            <section class="panel-section quality-section" aria-label="Bus stop quality mix">
+              <h2>Bus Stop Type Breakdown</h2>
+              <div class="bar-list" data-role="qualityBars"></div>
+            </section>
+          </aside>
+
+          <aside class="detail-panel compare-panel" id="panelB" data-slot="B" aria-live="polite">
+            <div class="panel-topline">
+              <span class="slot-label">Suburb B</span>
+              <span class="winner-badge" data-role="winner" hidden>More accessible</span>
+              <button class="clear-button" type="button" data-action="unpin" data-slot="B" hidden>Unpin</button>
+            </div>
+            <h1 class="panel-title" data-role="title">Pin a suburb</h1>
+            <p class="summary panel-summary" data-role="summary">Click a second suburb to compare against Suburb A.</p>
+
+            <div class="suburb-note" data-role="note" hidden>
+              <span class="suburb-note-title" data-role="noteTitle"></span>
+              <span class="suburb-note-body" data-role="noteBody"></span>
+            </div>
+
+            <div class="metric-grid" aria-label="Suburb B metrics">
+              <div class="metric-cell" data-metric="rank">
+                <span>Rank</span>
+                <strong data-role="value">--</strong>
+              </div>
+              <div class="metric-cell" data-metric="score">
+                <span>Accessibility Score <button type="button" class="info-icon" aria-label="About the accessibility score" aria-describedby="scoreInfoPopover">i</button></span>
+                <strong data-role="value">--</strong>
+              </div>
+              <div class="metric-cell" data-metric="stops">
+                <span>Stops</span>
+                <strong data-role="value">--</strong>
+              </div>
+            </div>
+
+            <section class="panel-section accessibility-section" aria-label="Accessibility factor breakdown">
+              <h2>Breakdown of Accessibility</h2>
+              <h3 class="panel-subheading">Accessibility Score by Factor</h3>
+              <div class="component-grid" data-role="componentGrid"></div>
+              <h3 class="panel-subheading">Accessibility Conditions by Factor</h3>
+              <div class="stack-list" data-role="conditionBars"></div>
+            </section>
+
+            <section class="panel-section quality-section" aria-label="Bus stop quality mix">
+              <h2>Bus Stop Type Breakdown</h2>
+              <div class="bar-list" data-role="qualityBars"></div>
+            </section>
+          </aside>
+        </div>
+
+        <div class="compare-actions">
+          <button type="button" class="clear-button clear-all" id="clearAll">Clear both</button>
+        </div>
+      </section>
+
+      <div class="info-popover" id="scoreInfoPopover" role="tooltip" hidden>
+        <button type="button" class="info-popover-close" id="scoreInfoClose" aria-label="Close">&times;</button>
+        <h3>About the Accessibility Score</h3>
+        <section>
+          <h4>What the Accessibility Score Measures</h4>
+          <p>Each classified bus stop is rated on four recorded access factors:</p>
+          <ul>
+            <li><strong>Boarding Space</strong> — whether there is enough clear space to get on and off the bus.</li>
+            <li><strong>Road Slope</strong> — how steep the road is at the stop.</li>
+            <li><strong>Sideways Tilt</strong> — how much the boarding area slopes across.</li>
+            <li><strong>Tactile Paving</strong> — textured ground that helps blind or low-vision passengers find a safe boarding point.</li>
+          </ul>
+        </section>
+        <section>
+          <h4>How the Accessibility Score is Calculated</h4>
+          <p>Each classified bus stop was converted into an accessibility score out of 7 to make the data easier to compare across suburbs.</p>
+          <p>Boarding space, road slope, and sideways tilt were scored as <strong>Easy = 2, Medium = 1, Hard = 0</strong>, while tactile paving was scored as <strong>Yes = 1, No = 0</strong>.</p>
+          <p>A higher score means the stop is likely to be easier to approach, wait at, and board from — with more clear space, gentler slopes, less sideways tilt, and tactile paving to support safer access.</p>
+        </section>
+      </div>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
