@@ -1294,7 +1294,7 @@ function renderCompareStrip() {
   if (isTie) {
     text.innerHTML = `<strong>${a.name}</strong> and <strong>${b.name}</strong> are effectively tied on accessibility score.`;
   } else {
-    text.innerHTML = `<strong>${winner.name}</strong> (${formatNumber(winner.scorePct)}%) leads <strong>${loser.name}</strong> (${formatNumber(loser.scorePct)}%) by <strong>${formatNumber(Math.abs(diff))}%</strong>.`;
+    text.innerHTML = `<strong>${winner.name}</strong> (${formatNumber(winner.scorePct)}%) leads <strong>${loser.name}</strong> (${formatNumber(loser.scorePct)}%) by <strong>${formatNumber(Math.abs(diff))}%</strong> on accessibility score.`;
   }
 
   bar.hidden = false;
